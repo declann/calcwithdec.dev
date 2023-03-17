@@ -3,10 +3,11 @@ title: "Tools with Dec"
 listing:
   contents: .
   sort: "date desc"
-  type: default
+  type: grid
   categories: false
   sort-ui: false
   filter-ui: false
+  fields: [title, description]
 page-layout: full
 title-block-banner: true
 ---

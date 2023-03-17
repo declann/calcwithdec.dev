@@ -72,9 +72,9 @@ ul.task-list li input[type="checkbox"] {
     }
 
     const options = {
-      valueNames: ['listing-date','listing-title','listing-author','listing-description',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
+      valueNames: ['listing-title','listing-description',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
       
-      searchColumns: ["listing-date","listing-title","listing-author","listing-description"],
+      searchColumns: ["listing-title","listing-author","listing-date","listing-description"],
     };
 
     window['quarto-listings'] = window['quarto-listings'] || {};
@@ -179,32 +179,21 @@ ul.task-list li input[type="checkbox"] {
 
 
 
-<div class="quarto-listing quarto-listing-container-default" id="listing-listing">
-<div class="list quarto-listing-default">
-<div class="quarto-post image-right" data-index="0" data-categories="viz" data-listing-date-sort="1679022000000" data-listing-file-modified-sort="1679081081853" data-listing-reading-time-sort="0.025">
-<div class="body">
-<a href="../tools/model-viz/index.html">
-<h3 class="no-anchor listing-title">
+<div class="quarto-listing quarto-listing-container-grid" id="listing-listing">
+<div class="list grid quarto-listing-cols-3">
+<div class="g-col-1" data-index="0" data-categories="viz" data-listing-date-sort="1679022000000" data-listing-file-modified-sort="1679081081853" data-listing-reading-time-sort="0.025">
+<a href="../tools/model-viz/index.html" class="quarto-grid-link">
+<div class="quarto-grid-item card h-100 card-left">
+<div class="card-body post-contents">
+<h5 class="no-anchor card-title listing-title">
 model visualiser
-</h3>
-<div class="listing-subtitle">
-
-</div>
-<div class="listing-description">
+</h5>
+<div class="card-text listing-description">
 I’m a model visualiser placeholder.
 </div>
-</a>
 </div>
-<div class="metadata">
-<a href="../tools/model-viz/index.html">
-<div class="listing-date">
-Mar 17, 2023
-</div>
-<div class="listing-author">
-Declan Naughton
 </div>
 </a>
-</div>
 </div>
 </div>
 <div class="listing-no-matching d-none">
