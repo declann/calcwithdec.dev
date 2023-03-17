@@ -4,5 +4,11 @@
     "items": [
       "/posts/soon/index.html"
     ]
+  },
+  {
+    "listing": "/tools/index.html",
+    "items": [
+      "/tools/model-viz/index.html"
+    ]
   }
 ]
