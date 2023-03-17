@@ -5,8 +5,31 @@ author:
     url: https://calcwithdec.dev
 date: "2023-03-17"
 categories: [viz]
+code-fold: true
 ---
 
 # Hi!
 
 I'm a model visualiser placeholder.
+
+## First some plumbing 🚰
+
+Let's load the pensions calculator model:
+
+```{ojs}
+location1 = "declann/calculang-miscellaneous-models";
+sha = "main";
+location2 = "/models/pensions/pensions-calculator"
+model = require(`https://cdn.jsdelivr.net/gh/${location1}@${sha}${location2}.js`)
+source = fetch(`https://cdn.jsdelivr.net/gh/${location1}@${sha}${location2}.cul.js`).then(response => {
+  return response.text();
+});
+
+model;
+```
+
+Lets get some fun output from it:
+
+```{ojs}
+model.projected_fund_value({age_0_in:21,retirement_age_in:65,annual_salary_0_in:20000,empee_contribution_rate_in:0.1,unit_growth_rate_in:0.06, salary_inflation_rate_in:0.02,fund_value_0_in:5000})
+```
