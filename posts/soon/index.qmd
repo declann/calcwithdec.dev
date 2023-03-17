@@ -2,7 +2,7 @@
 title: "Coming soon!!!"
 author:
   - name: "Declan Naughton"
-    url: https://deccalcs.dev
+    url: https://calcwithdec.dev
 date: "2023-03-17"
 categories: [news]
 ---
