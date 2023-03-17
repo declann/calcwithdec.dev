@@ -1,5 +1,5 @@
 ---
-title: "Tools with Dec"
+title: "Tools with Dec 🔨"
 listing:
   contents: .
   sort: "date desc"

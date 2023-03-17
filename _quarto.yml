@@ -16,6 +16,9 @@ website:
         href: https://github.com/declann
       - icon: journal-code
         href: https://observablehq.com/@declann
+  page-footer:
+    left: "Made with 💓 and [calculang](https://github.com/calculang/calculang) and [Quarto](https://quarto.org/) and lots of 🧉 by [Declan Naughton](https://calcwithdec.dev/about.html)."
+    right: "ℹ️ [Website Source Code](https://github.com/declann/calcwithdec.dev)"
   twitter-card: true # creator=@calculang?
 
 format:
