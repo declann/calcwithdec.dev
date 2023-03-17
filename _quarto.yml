@@ -1,0 +1,29 @@
+project:
+  type: website
+
+website:
+  title: "Calc with Dec 🧮 🤓"
+  navbar:
+    right:
+      - about.qmd
+      - icon: envelope-fill
+        href: mailto:declann1990@gmail.com
+  #    - icon: linkedin
+  #      href: https://linkedin.com
+      - icon: twitter
+        href: https://twitter.com/calculang
+      - icon: github
+        href: https://github.com/declann
+      - icon: journal-code
+        href: https://observablehq.com/@declann
+  twitter-card: true # creator=@calculang?
+
+format:
+  html:
+    theme:
+      light: journal
+      dark: darkly
+    css: styles.css
+    include-after-body: plausible.html    
+
+

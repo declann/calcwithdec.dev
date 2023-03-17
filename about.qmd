@@ -1,0 +1,32 @@
+---
+title: "About Dec 👋"
+image: profile.jpg
+about:
+  template: jolla
+  links:
+    - icon: envelope-fill
+      text: My Email 🫶
+      href: mailto:declann1990@gmail.com
+#    - icon: linkedin
+#      text: "My LinkedIn"
+#      href: https://linkedin.com
+    - icon: twitter
+      text: Twitter @calculang
+      href: https://twitter.com/calculang
+    - icon: github
+      text: Github @declann
+      href: https://github.com/declann
+    - icon: journal
+      text: ObservableHQ @declann
+      href: https://observablehq.com/@declann
+---
+
+I'm Declan. I'm a modeller - I work with numbers, mostly in actuarial departments. 📊
+
+I also develop [calculang](https://github.com/calculang/calculang), with a mission to democratise numbers. A life project and still a baby 🌱
+
+This website is **under construction** 🚧
+
+I made this it to share my thoughts about modelling ("calcs") and stuff. Don't treat it like professional work or advice.
+
+If you want my professional work or advice, send me a hello by electronic mail to: [declann1990@gmail.com](mailto:declann1990@gmail.com) 🙂

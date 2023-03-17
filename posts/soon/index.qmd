@@ -1,0 +1,12 @@
+---
+title: "Coming soon!!!"
+author:
+  - name: "Declan Naughton"
+    url: https://deccalcs.dev
+date: "2023-03-17"
+categories: [news]
+---
+
+Blog coming **soon**!!! 😱
+
+Thank you for visiting!
