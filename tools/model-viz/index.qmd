@@ -20,7 +20,9 @@ This visualiser uses:
 
 - calculang [introspection information](https://github.com/calculang/calculang/tree/main/packages/introspection-api) written by the `cul-js` compiler.
 - an `input_domains_config` configuration object that defines domains of model inputs
-- ...
+- some cartesian product logic depending on the mapped encodings and their domains. C-P code comes from [here](https://stackoverflow.com/questions/18957972/cartesian-product-of-objects-in-javascript)
+- [CompassQL](https://github.com/vega/compassql) to generate a vega-lite spec
+- [vega-lite](https://vega.github.io/vega-lite/) to render the visual, following minor manipulation
 
 ## Demo - pensions calculator model
 
@@ -77,6 +79,12 @@ bar_height$_in,0,50,1,25,25,5
 ### Viz spec UI
 
 ```{ojs}
+viewof mark = Inputs.select(["?", "bar", "line", "point","text","rect"], {label: "mark", value:"text"})
+
+viewof height = Inputs.range([0, 1000], {label: "height", step: 50, value:400})
+```
+
+```{ojs}
 viewof viz_spec = {
 
   const rows = ["formula","value","field 🔓",...formulae_info_inputs,""];
@@ -91,7 +99,7 @@ ${rows.map(r => `<tr><td>${r}</td>${ r.substr(-3) == '_in' ? `<td><input type="t
 </table>`//<thead><tr><td>ff</td></tr></thead><tr><td><input type="radio" name="ddd" value="A">A</input></td></tr><tr><td><input type="radio" name="ddd" value="B" checked="checked">B</input></td></tr></table>`
 
   let up  = () => {
-    var o = {cursor:{}, independent_scales:{}, types:{},formats:{},encodings:{}};
+    var o = {cursor:{}, independent_scales:{}, types:{},formats:{},encodings:{"x":"","y":"formula","color":"formula","row":"","text":"value","detail":"","size":"","field 🔓":""}};
     cols.forEach(c => {
       var s = el.querySelector(`input[name="${c}"]:checked`)
       o.encodings[c] = s ? s.value : '';
@@ -117,12 +125,20 @@ ${rows.map(r => `<tr><td>${r}</td>${ r.substr(-3) == '_in' ? `<td><input type="t
 
   el.onchange = up;
 
+// this is for configuring the default viz spec
+el.querySelector(`input[id="y_formula"]`).checked = true;
+el.querySelector(`input[id="color_formula"]`).checked = true;
+el.querySelector(`input[id="text_value"]`).checked = true;
+
+(el).dispatchEvent(new Event("input", {bubbles: true}))
   up()
 
   //el.onload = up;
 //el.querySelector(`input[id="x_formula"]`).checked = true;
 //el.getElementById("formula_x").checked = true;
 //el.dispatchEvent(new Event("input", {bubbles: true}));
+
+
   return el;
 }
 ```
@@ -175,6 +191,10 @@ domains = {
 input_combos_A_projection = cartesianProduct(Object.entries(input_domains_A_projection).map(([k,v]) => ({[k]: v})))
 projection = formulae_info.filter(d => formulae_info_inputs.indexOf(d.name+'_in') == -1).map(({name}) => input_combos_A_projection.map(combos => ({...combos,/*[pvt_y]: combos[pvt_y],*/ formula:name, /*[name]*/value: +model[name](combos)/*.toFixed(2)*/}))).flat()
 
+```
+
+```{ojs}
+vega(c_spec1)
 ```
 
 .
@@ -242,10 +262,72 @@ function cartesianProduct(input, current) {
 ```
 
 ```{ojs}
-// this is for configuring the default viz spec
+// this is for configuring the default viz spec, to sync the UI
 viewof viz_spec.querySelector(`input[id="y_formula"]`).checked = true;
 viewof viz_spec.querySelector(`input[id="color_formula"]`).checked = true;
 viewof viz_spec.querySelector(`input[id="text_value"]`).checked = true;
+//viewof viz_spec.value.encodings = {"Hi": "world"}
 
-(viewof viz_spec).dispatchEvent(new Event("input", {bubbles: true}))
+//(viewof viz_spec).dispatchEvent(new Event("input", {bubbles: true}))
+```
+
+```{ojs}
+cql = require("compassql")
+
+schema = cql.schema.build(projection)
+
+encodings = Object.entries(viz_spec.encodings).filter(([k,v]) => v != '' && k != 'cursor' && k != 'independent_scales' && k != 'types' && k != 'formats').map(([k,v]) => ({channel:k,field:v,type:viz_spec.types[v],format:viz_spec.formats[v]}))
+
+output = cql.recommend({
+  spec: {data: projection,
+    mark: mark == 'bar' ? 'line' : mark,
+    //tooltip: true,
+    encodings,
+  },
+  chooseBy: "effectiveness",
+}, schema);
+
+vlTree = cql.result.mapLeaves(output.result, function (item) {
+  return item//.toSpec();
+});
+
+c_spec = vlTree.items[0].toSpec()
+
+c_spec1 = {
+  var s = c_spec;
+  s.data = {name: 'projection'};
+  s.width = 600;
+  s.height = height;
+  s.datasets = {projection}
+  var r = {}
+  Object.entries(viz_spec.independent_scales).filter(([k,v]) => v == true).forEach(([k,v]) => { r[k] = 'independent' })
+  s.resolve = {scale: r}
+  if (mark == "bar") s.mark = "bar"; //{"type": "bar", "tooltip": true};
+  var p = s.mark;
+  s.mark = {type: p, tooltip:true}
+  if (mark == "line") s.mark.point = true
+  
+  s["config"] ={"legend": {"disable": true}}
+  return s
+}
+```
+
+```{ojs}
+vega = { // credit to Mike Bostock: https://observablehq.com/@mbostock/hello-vega-embed
+  const v = window.vega = await require("vega");
+  const vl = window.vl = await require("vega-lite");
+  const ve = await require("vega-embed");
+  async function vega(spec, options) {
+    const div = document.createElement("div");
+    div.value = (await ve(div, spec, options)).view;
+    div.value.addEventListener('click', (event, item) => { console.log(item.datum) }) // DN
+    return div;
+  }
+  vega.changeset = v.changeset;
+  return vega;
+}
+```
+
+```{ojs}
+c_spec
 ```
