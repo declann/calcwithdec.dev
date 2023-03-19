@@ -18,15 +18,21 @@ website:
         href: https://observablehq.com/@declann
   page-footer:
     left: "Made with 💓 and [calculang](https://github.com/calculang/calculang) and [Quarto](https://quarto.org/) and lots of 🧉 by [Declan Naughton](https://calcwithdec.dev/about.html)."
-    right: "ℹ️ [Website Source Code](https://github.com/declann/calcwithdec.dev)"
+    right: "ℹ️ [Source](https://github.com/declann/calcwithdec.dev)"
   twitter-card: true # creator=@calculang?
 
 format:
   html:
-    theme:
+    embed-resources: true
+    self-contained-math: true
+    html-math-method: plain
+    #link-external-icon: true
+    link-external-newwindow: true
+    #link-external-filter: '^(?:http:|https:)\/\/www\.quarto\.org\/custom'
+    theme: #none
       light: journal
       dark: darkly
     css: styles.css
-    include-after-body: plausible.html    
+    #include-after-body: plausible.html
 
 

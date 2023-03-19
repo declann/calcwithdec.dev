@@ -3,18 +3,28 @@ title: "model visualiser"
 author:
   - name: "Declan Naughton"
     url: https://calcwithdec.dev
-date: "2023-03-17"
-categories: [viz]
-code-fold: true
+#date: "2023-03-17"
+#categories: [viz, viz numbers]
+execute:
+  echo: false # set to false for publish
+code-tools: true
+#licence: TBC
+#code-fold: true
 ---
 
-# Hi!
+Here is a tool to visualise numbers from a calculang model.
 
-I'm a model visualiser placeholder.
+It's **under construction** 🚧. If you are a UI person and/or want to help with the development of tools for models, tools for transparency and for education, please [get in touch](mailto:declann1990@gmail.com).
 
-## First some plumbing 🚰
+This visualiser uses:
 
-Let's load the pensions calculator model:
+- calculang [introspection information](https://github.com/calculang/calculang/tree/main/packages/introspection-api) written by the `cul-js` compiler.
+- an `input_domains_config` configuration object that defines domains of model inputs
+- ...
+
+## Demo - pensions calculator model
+
+This is a demo, using the [pensions calculator model](https://github.com/declann/calculang-miscellaneous-models/tree/main/models/pensions). Don't believe the numbers too much, but it's interesting to understand the visualisation tool.
 
 ```{ojs}
 location1 = "declann/calculang-miscellaneous-models";
@@ -24,12 +34,218 @@ model = require(`https://cdn.jsdelivr.net/gh/${location1}@${sha}${location2}.js`
 source = fetch(`https://cdn.jsdelivr.net/gh/${location1}@${sha}${location2}.cul.js`).then(response => {
   return response.text();
 });
-
-model;
+introspection = fetch(`https://cdn.jsdelivr.net/gh/${location1}@${sha}${location2}.introspection.json`).then(response => {
+  return response.json();
+});
 ```
 
-Lets get some fun output from it:
+```{ojs}
+// info for the available formulae (not every formula)
+formulae_info = Object.keys(model).map(d => Object.values(introspection.cul_functions).find(e => e.name == d && e.cul_scope_id == 0)).filter(d => d != undefined);
+```
 
 ```{ojs}
-model.projected_fund_value({age_0_in:21,retirement_age_in:65,annual_salary_0_in:20000,empee_contribution_rate_in:0.1,unit_growth_rate_in:0.06, salary_inflation_rate_in:0.02,fund_value_0_in:5000})
+formulae_info_inputs = {
+  var inputs = [];
+  formulae_info.forEach(d => {
+    inputs.push(d.inputs)
+  })
+  return [...new Set(inputs.flat())] //Object.keys(inputs);
+}
+```
+
+```{ojs}
+input_domains_config = d3.csvParse(
+`input,min,max,step,default0,default1,step_sens
+age_in,20,70,10,30,60,10
+age_0_in,20,50,5,25,40,5
+annual_salary_0_in,10000,200000,100,50000,100000,30000
+salary_inflation_rate_in,-0.05,0.10,0.01,0.05,0.04,0.03
+empee_contribution_rate_in,0.00,0.30,0.01,0.05,0.1,0.05
+unit_growth_rate_in,-0.02,0.10,0.01,0.05,0.05,0.02
+retirement_age_in,25,90,1,66,65,5
+fund_value_0_in,0,300000,1000,0,100000,50000
+num_bars_in,0,20,1,10,10,5
+container_height$_in,0,600,1,500,500,100
+top_margin$_in,0,20,1,10,10,5
+bottom_margin$_in,0,20,1,10,10,5
+gap$_in,0,20,1,10,10,15
+bar_height$_in,0,50,1,25,25,5
+`, d => ({...d, min:+d.min,max:+d.max,step:+d.step_sens,default:+d.default}))
+```
+
+### Viz spec UI
+
+```{ojs}
+viewof viz_spec = {
+
+  const rows = ["formula","value","field 🔓",...formulae_info_inputs,""];
+  const cols = ["x","y","color","row","text","detail","size", "field 🔓"]
+
+  const t = html`<thead><tr><td>field</td><td>min</td><td># steps</td><td>size</td><td>cursor</td><td>type</td><td>format</td>${cols.map(c => `<td>${c}</td>`).join('')}</tr></thead>
+${rows.map(r => `<tr><td>${r}</td>${ r.substr(-3) == '_in' ? `<td><input type="text" style="width:30px" value="${input_domains_config.find(e => e.input == r).min /*?? 0*/}" /></td><td><input type="number" style="width:50px" min="0" max="100" value="${(input_domains_config.find(e => e.input == r).max - input_domains_config.find(e => e.input == r).min)/input_domains_config.find(e => e.input == r).step}" /></td><td><input type="text" style="width:30px" value="${input_domains_config.find(e => e.input == r).step}" /></td><td><input type="text" style="width:30px" value="${input_domains_config.find(e => e.input == r).default1}" id="cursor_${r}" /></td>` : `<td></td><td></td><td></td><td></td>`}<td><select id="type_${r}" style="width:40px"><option value="nominal">N</option><option value="ordinal">O</option><option value="quantitative">Q</option></select></td><td><input type="text" id="format_${r}" style="width:30px" /></td>${cols.map(c => `<td><input type="radio" name="${c}" id="${c}_${r}" value="${r}" ${r == "" ? `checked="checked"` : ''}></input></td>`).join('')}</tr>`).join('\n')}
+<tr><td>independent scale?</td><td></td><td></td><td></td><td></td><td></td><td></td>${cols.map(c => `<td><input type="checkbox" id="independent_scale_${c}" /></td>`).join('')}</tr>
+`
+
+  const el = html`<table>${t}
+</table>`//<thead><tr><td>ff</td></tr></thead><tr><td><input type="radio" name="ddd" value="A">A</input></td></tr><tr><td><input type="radio" name="ddd" value="B" checked="checked">B</input></td></tr></table>`
+
+  let up  = () => {
+    var o = {cursor:{}, independent_scales:{}, types:{},formats:{},encodings:{}};
+    cols.forEach(c => {
+      var s = el.querySelector(`input[name="${c}"]:checked`)
+      o.encodings[c] = s ? s.value : '';
+      s = el.querySelector(`input[id="independent_scale_${c}"]`)
+      o.independent_scales[c] = s.checked
+    })
+    rows.filter(r => r.substr(-3) == "_in").forEach(r => {
+      var s  = el.querySelector(`input[id="cursor_${r}"]`);
+      o.cursor[r] = s.value == '' ? undefined : +s.value;
+      //o.types[r] = el.querySelector(`select[id="type_${r}"]`).value
+    })
+    rows.forEach(r => {
+      //var s  = el.querySelector(`input[id="cursor_${r}"]`);
+      //o.cursor[r] = +s.value;
+      o.types[r] = el.querySelector(`select[id="type_${r}"]`).value
+      o.formats[r] = el.querySelector(`input[id="format_${r}"]`).value
+    })
+    //var s = el.querySelector('input[name="x"]:checked')
+    el.value = o//s ? s.value : ''
+    el.dispatchEvent(new Event("input", {bubbles: true}));
+  }
+  //el.on
+
+  el.onchange = up;
+
+  up()
+
+  //el.onload = up;
+//el.querySelector(`input[id="x_formula"]`).checked = true;
+//el.getElementById("formula_x").checked = true;
+//el.dispatchEvent(new Event("input", {bubbles: true}));
+  return el;
+}
+```
+
+```{ojs}
+DOM.download(new Blob([JSON.stringify(viz_spec)], {type: "application/json"}), "viz_spec", "download viz spec")
+```
+
+[DATA ↓](#projection-data)
+
+```{ojs}
+mapped_inputs = Object.entries(viz_spec.encodings).map(d => d[1]).filter(d => d.substr(-3) == "_in")
+
+
+// anything mapped to an enconding should go here
+
+input_domains_A_overrides = {
+  var o = {}
+  mapped_inputs.forEach(i => {
+    o[i] = domains[i]
+  })
+  return o
+}
+
+input_domains_A_projection = {
+  var o = {}
+  Object.entries(viz_spec.cursor).forEach(([k,v]) => {
+    o[k] = [v]
+  })
+  Object.entries(input_domains_A_overrides).forEach(([k,v]) => {
+    o[k] = v
+  })
+  //o.formula = Object.values(model)
+  return o
+}
+```
+
+```{ojs}
+domains = {
+  var o = {};
+  for (var i in input_domains_config) {
+    var d = input_domains_config[i];
+    o[d.input] = _.range(d.min, d.max, d.step).map(d => +d.toFixed(2))// input_domains_config[i];
+  };
+  return o
+}
+```
+
+```{ojs}
+input_combos_A_projection = cartesianProduct(Object.entries(input_domains_A_projection).map(([k,v]) => ({[k]: v})))
+projection = formulae_info.filter(d => formulae_info_inputs.indexOf(d.name+'_in') == -1).map(({name}) => input_combos_A_projection.map(combos => ({...combos,/*[pvt_y]: combos[pvt_y],*/ formula:name, /*[name]*/value: +model[name](combos)/*.toFixed(2)*/}))).flat()
+
+```
+
+.
+
+.
+
+.
+
+.
+
+.
+
+## Appendix
+
+### Projection data
+
+```{ojs}
+Inputs.table(projection, {columns: ['formula', 'value', ...(Object.keys((projection[0])).filter(d => d != 'formula' && d != 'value'))]});
+```
+
+```{ojs}
+// thx to https://observablehq.com/@palewire/saving-csv & https://observablehq.com/@christophe-yamahata
+json2csv = require("json2csv@5.0.7/dist/json2csv.umd.js")
+
+function serialize (data) {
+ let parser = new json2csv.Parser();
+ let csv = parser.parse(data);
+ return new Blob([csv], {type: "text/csv"}) 
+}
+
+DOM.download(serialize(projection), "projection", "download csv")
+//DOM.download(serialize([{}]), "projection", "download csv (unpivot) TODO")
+```
+
+```{ojs}
+// https://stackoverflow.com/questions/18957972/cartesian-product-of-objects-in-javascript
+function copy(obj) {
+   var res = {};
+   for (var p in obj) res[p] = obj[p];
+   return res;
+ }
+ 
+
+// https://stackoverflow.com/questions/18957972/cartesian-product-of-objects-in-javascript
+function cartesianProduct(input, current) {
+    if (!input || !input.length) { return []; }
+ 
+    var head = input[0];
+    var tail = input.slice(1);
+    var output = [];
+ 
+     for (var key in head) {
+       for (var i = 0; i < head[key].length; i++) {
+             var newCurrent = copy(current);         
+             newCurrent[key] = head[key][i];
+             if (tail.length) {
+                  var productOfTail = 
+                          cartesianProduct(tail, newCurrent);
+                  output = output.concat(productOfTail);
+             } else output.push(newCurrent);
+        }
+      }    
+     return output;
+ }
+```
+
+```{ojs}
+// this is for configuring the default viz spec
+viewof viz_spec.querySelector(`input[id="y_formula"]`).checked = true;
+viewof viz_spec.querySelector(`input[id="color_formula"]`).checked = true;
+viewof viz_spec.querySelector(`input[id="text_value"]`).checked = true;
+
+(viewof viz_spec).dispatchEvent(new Event("input", {bubbles: true}))
 ```

@@ -7,6 +7,10 @@ date: "2023-03-17"
 categories: [news]
 ---
 
-Blog coming **soon**!!! 😱
+Bloggy things **coming soon**!!! 😱
 
 Thank you for visiting!
+
+```{ojs}
+2+2
+```

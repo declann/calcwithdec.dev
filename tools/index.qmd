@@ -12,4 +12,14 @@ page-layout: full
 title-block-banner: true
 ---
 
+### Tooling is an important motivation to separate concerns in the way that [a language for calculations](https://github.com/calculang/calculang) proposes.
 
+<br />
+
+Here is a place where I'll put *some of the tools* I've been able to hammer together.
+
+If you are a UI person and/or want to help with the development of tools for models, tools for transparency and for education, please [get in touch](mailto:declann1990@gmail.com).
+
+<!-- If you are a UI or pedagogy/teaching person and want to help with the development of tools for models, tools for transparency and for education, please [get in touch](mailto:declann1990@gmail.com). -->
+
+<br />
