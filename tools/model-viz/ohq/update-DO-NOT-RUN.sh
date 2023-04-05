@@ -1,5 +1,5 @@
 # Do not run this without trusting completely the ObservableHQ API, the tarball and contents which are run in node, and this script
-# There is no warranty etc.
+# There is no warranty!
 
 wget https://api.observablehq.com/@declann/calculang-tools-bad.tgz?v=3
 
