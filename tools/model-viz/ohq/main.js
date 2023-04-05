@@ -602,32 +602,32 @@ data_new_sensitivities.flat().map(d => {
 )
 )}
 
+function _55(formulae_info){return(
+formulae_info
+)}
+
+function _56(md){return(
+md`*download data cell broken*`
+)}
+
+function _57(DOM,serialize,projection){return(
+DOM.download(serialize(projection), null, "csv download")
+)}
+
+function _nocode_viz_tag(){return(
+''
+)}
+
+function _59(md){return(
+md`# Nocode viz`
+)}
+
 function _mark(Inputs){return(
 Inputs.select(["?", "bar", "line", "point","text","rect"], {label: "mark", value:"text"})
 )}
 
 function _height(Inputs){return(
 Inputs.range([0, 1000], {label: "height", step: 50, value:400})
-)}
-
-function _57(formulae_info){return(
-formulae_info
-)}
-
-function _58(md){return(
-md`*download data cell broken*`
-)}
-
-function _59(DOM,serialize,projection){return(
-DOM.download(serialize(projection), null, "csv download")
-)}
-
-function _60(md){return(
-md`# Nocode viz`
-)}
-
-function _nocode_viz_tag(){return(
-''
 )}
 
 function _62(md){return(
@@ -639,11 +639,11 @@ Pros and cons to this UI layout, but I like it for mow, it shows the space of wh
 function _viz_spec(formulae_info_inputs,html,input_domains_config,Event)
 { // DN: transferrable
 
-  const rows = ["formula","value","field 🔓",...formulae_info_inputs,""];
-  const cols = ["x","y","color","row","text","detail","size", "field 🔓"]
+  const rows = ["formula","value"/*,"field 🔓"*/,...formulae_info_inputs,""];
+  const cols = ["x","y","color","row","col","text","detail","size"/*, "field 🔓"*/]
 
   const t = html`<thead><tr><td>field</td><td>min</td><td># steps</td><td>size</td><td>cursor</td><td>type</td><td>format</td>${cols.map(c => `<td>${c}</td>`).join('')}</tr></thead>
-${rows.map(r => `<tr><td>${r}</td>${ r.substr(-3) == '_in' ? `<td><input type="text" style="width:30px" value="${input_domains_config.find(e => e.input == r).min /*?? 0*/}" /></td><td><input type="number" style="width:50px" min="0" max="100" value="${(input_domains_config.find(e => e.input == r).max - input_domains_config.find(e => e.input == r).min)/input_domains_config.find(e => e.input == r).step}" /></td><td><input type="text" style="width:30px" value="${input_domains_config.find(e => e.input == r).step}" /></td><td><input type="text" style="width:30px" value="${input_domains_config.find(e => e.input == r).default1}" id="cursor_${r}" /></td>` : `<td></td><td></td><td></td><td></td>`}<td><select id="type_${r}" style="width:40px"><option value="nominal">${r == "value" ? "Q" : "N"}</option><option value="ordinal">O</option><option value="quantitative">Q</option></select></td><td><input type="text" id="format_${r}" value="${r == "value" ? ".4~s" : ""}" style="width:30px" /></td>${cols.map(c => `<td><input type="radio" name="${c}" id="${c}_${r}" value="${r}" ${r == "" ? `checked="checked"` : ''}></input></td>`).join('')}</tr>`).join('\n')}
+${rows.map(r => `<tr><td>${r}</td>${ r.substr(-3) == '_in' ? `<td><input id="${r}_min" class="mins" type="text" style="width:30px" value="${input_domains_config.find(e => e.input == r).min /*?? 0*/}"/></td><td><input type="number" style="width:50px" min="0" max="100" value="${(input_domains_config.find(e => e.input == r).max - input_domains_config.find(e => e.input == r).min)/input_domains_config.find(e => e.input == r).step}" /></td><td><input type="text" style="width:30px" value="${input_domains_config.find(e => e.input == r).step}" /></td><td><input type="text" style="width:30px" value="${input_domains_config.find(e => e.input == r).default1}" id="cursor_${r}" /></td>` : `<td></td><td></td><td></td><td></td>`}${ r != "" ? `<td><select id="type_${r}" style="width:40px"><option value="nominal">${r == "value" ? "Q" : "N"}</option><option value="ordinal">O</option><option value="quantitative">Q</option></select></td><td><input type="text" id="format_${r}" value="${r == "value" ? ".4~s" : ""}" style="width:30px" /></td>` : `<td></td><td></td>`}${cols.map(c => `<td><input type="radio" name="${c}" id="${c}_${r}" value="${r}" ${r == "" ? `checked="checked"` : ''}></input></td>`).join('')}</tr>`).join('\n')}
 <tr><td>independent scale?</td><td></td><td></td><td></td><td></td><td></td><td></td>${cols.map(c => `<td><input type="checkbox" id="independent_scale_${c}" /></td>`).join('')}</tr>
 `
 
@@ -651,10 +651,13 @@ ${rows.map(r => `<tr><td>${r}</td>${ r.substr(-3) == '_in' ? `<td><input type="t
 </table>`//<thead><tr><td>ff</td></tr></thead><tr><td><input type="radio" name="ddd" value="A">A</input></td></tr><tr><td><input type="radio" name="ddd" value="B" checked="checked">B</input></td></tr></table>`
 
   let up  = () => {
+    const mins = el.querySelectorAll(`input[class="mins"]`)
+    mins.forEach(d => {d.disabled = false})
     var o = {cursor:{}, independent_scales:{}, types:{},formats:{},encodings:{"x":"","y":"formula","color":"formula","row":"","text":"value","detail":"","size":"","field 🔓":""}};
     cols.forEach(c => {
       var s = el.querySelector(`input[name="${c}"]:checked`)
       o.encodings[c] = s ? s.value : '';
+      if (s.value && s.value != 'formula' && s.value != 'value') { el.querySelector(`input[id="${s.value}_min"]`).disabled = true }
       s = el.querySelector(`input[id="independent_scale_${c}"]`)
       o.independent_scales[c] = s.checked
     })
@@ -663,7 +666,7 @@ ${rows.map(r => `<tr><td>${r}</td>${ r.substr(-3) == '_in' ? `<td><input type="t
       o.cursor[r] = s.value == '' ? undefined : +s.value;
       //o.types[r] = el.querySelector(`select[id="type_${r}"]`).value
     })
-    rows.forEach(r => {
+    rows.filter(r => r != "").forEach(r => {
       //var s  = el.querySelector(`input[id="cursor_${r}"]`);
       //o.cursor[r] = +s.value;
       o.types[r] = el.querySelector(`select[id="type_${r}"]`).value
@@ -703,15 +706,19 @@ function _grid(Inputs){return(
 Inputs.checkbox(["☰ gridlines ☰"], {label: "", value: []})
 )}
 
-function _66($0){return(
-$0.querySelector(`input[id="y_formula"]`).checked = true
+function _66(mapped_inputs){return(
+mapped_inputs
 )}
 
 function _67($0){return(
-$0.querySelector(`input[id="color_formula"]`).checked = true
+$0.querySelector(`input[id="y_formula"]`).checked = true
 )}
 
 function _68($0){return(
+$0.querySelector(`input[id="color_formula"]`).checked = true
+)}
+
+function _69($0){return(
 $0.querySelector(`input[id="text_value"]`).checked = true
 )}
 
@@ -719,7 +726,7 @@ function _mapped_inputs(viz_spec){return(
 Object.entries(viz_spec.encodings).map(d => d[1]).filter(d => d.substr(-3) == "_in")
 )}
 
-function _70(viz_spec){return(
+function _71(viz_spec){return(
 viz_spec
 )}
 
@@ -733,15 +740,15 @@ function _input_domains_A_overrides(mapped_inputs,domains)
 }
 
 
-function _72(inputs){return(
+function _73(inputs){return(
 inputs
 )}
 
-function _73(viz_spec){return(
+function _74(viz_spec){return(
 viz_spec.cursor
 )}
 
-function _74(use_cursor_from_table){return(
+function _75(use_cursor_from_table){return(
 use_cursor_from_table
 )}
 
@@ -806,7 +813,7 @@ ${links.join('\n')}
 }`
 )}
 
-function _84(md){return(
+function _85(md){return(
 md`## the calculang:`
 )}
 
@@ -826,11 +833,11 @@ function _code_opt(Inputs){return(
 Inputs.select(["📝 calculang source 💬", "✨ calculang output ✨ for 🖥️", "🌲 calculang internal 🌲 for 🖥️"], {label: "🧙 via 🌲s", value: "📝 calculang source 💬"})
 )}
 
-function _89(md){return(
+function _90(md){return(
 md`*Note: if memoisation is turned on, additional memo scopes are generated which **aren't actual source code**.* (strictly what "calculang source" is looking at is calculang transformation input)`
 )}
 
-function _90(md){return(
+function _91(md){return(
 md`### *scope id graph:*`
 )}
 
@@ -838,7 +845,7 @@ function _qs(Inputs){return(
 Inputs.checkbox(["show query string?"])
 )}
 
-function _92(dot,d){return(
+function _93(dot,d){return(
 dot`${d}`
 )}
 
@@ -859,11 +866,11 @@ ${code_opt.indexOf("source") != -1 ? calcuin : calcuout}
 ` }
 
 
-function _95(md){return(
+function _96(md){return(
 md`## appendix`
 )}
 
-function _96(md){return(
+function _97(md){return(
 md`### calculang plugs`
 )}
 
@@ -1046,7 +1053,7 @@ async function _vega(require)
 }
 
 
-function _121(md){return(
+function _122(md){return(
 md`## compassql`
 )}
 
@@ -1054,7 +1061,7 @@ function _cql(require){return(
 require("compassql")
 )}
 
-function _123(projection){return(
+function _124(projection){return(
 projection
 )}
 
@@ -1135,7 +1142,7 @@ function _c_spec1(c_spec,height,projection,viz_spec,mark)
 }
 
 
-function _130(md){return(
+function _131(md){return(
 md`## credits
 
 made with 💖 and [calculang](https://github.com/calculang)`
@@ -1199,30 +1206,31 @@ export default function define(runtime, observer) {
   main.variable(observer()).define(["input_domains_config"], _52);
   main.variable(observer("nonCursorSensitivities")).define("nonCursorSensitivities", ["domains","cursor","formula_inputs"], _nonCursorSensitivities);
   main.variable(observer()).define(["data_new_sensitivities","formulae_info_inputs","cursor","domainsWithStepOffsets"], _54);
+  main.variable(observer()).define(["formulae_info"], _55);
+  main.variable(observer()).define(["md"], _56);
+  main.variable(observer()).define(["DOM","serialize","projection"], _57);
+  main.variable(observer("nocode_viz_tag")).define("nocode_viz_tag", _nocode_viz_tag);
+  main.variable(observer()).define(["md"], _59);
   main.variable(observer("viewof mark")).define("viewof mark", ["Inputs"], _mark);
   main.variable(observer("mark")).define("mark", ["Generators", "viewof mark"], (G, _) => G.input(_));
   main.variable(observer("viewof height")).define("viewof height", ["Inputs"], _height);
   main.variable(observer("height")).define("height", ["Generators", "viewof height"], (G, _) => G.input(_));
-  main.variable(observer()).define(["formulae_info"], _57);
-  main.variable(observer()).define(["md"], _58);
-  main.variable(observer()).define(["DOM","serialize","projection"], _59);
-  main.variable(observer()).define(["md"], _60);
-  main.variable(observer("nocode_viz_tag")).define("nocode_viz_tag", _nocode_viz_tag);
   main.variable(observer()).define(["md"], _62);
   main.variable(observer("viewof viz_spec")).define("viewof viz_spec", ["formulae_info_inputs","html","input_domains_config","Event"], _viz_spec);
   main.variable(observer("viz_spec")).define("viz_spec", ["Generators", "viewof viz_spec"], (G, _) => G.input(_));
   main.variable(observer()).define(["vega","c_spec1"], _64);
   main.variable(observer("viewof grid")).define("viewof grid", ["Inputs"], _grid);
   main.variable(observer("grid")).define("grid", ["Generators", "viewof grid"], (G, _) => G.input(_));
-  main.variable(observer()).define(["viewof viz_spec"], _66);
+  main.variable(observer()).define(["mapped_inputs"], _66);
   main.variable(observer()).define(["viewof viz_spec"], _67);
   main.variable(observer()).define(["viewof viz_spec"], _68);
+  main.variable(observer()).define(["viewof viz_spec"], _69);
   main.variable(observer("mapped_inputs")).define("mapped_inputs", ["viz_spec"], _mapped_inputs);
-  main.variable(observer()).define(["viz_spec"], _70);
+  main.variable(observer()).define(["viz_spec"], _71);
   main.variable(observer("input_domains_A_overrides")).define("input_domains_A_overrides", ["mapped_inputs","domains"], _input_domains_A_overrides);
-  main.variable(observer()).define(["inputs"], _72);
-  main.variable(observer()).define(["viz_spec"], _73);
-  main.variable(observer()).define(["use_cursor_from_table"], _74);
+  main.variable(observer()).define(["inputs"], _73);
+  main.variable(observer()).define(["viz_spec"], _74);
+  main.variable(observer()).define(["use_cursor_from_table"], _75);
   main.variable(observer("input_domains_A_new")).define("input_domains_A_new", ["use_cursor_from_table","input_domains_A_projection","input_domains_A"], _input_domains_A_new);
   main.variable(observer("input_domains_A")).define("input_domains_A", ["inputs","input_domains_A_overrides"], _input_domains_A);
   main.variable(observer("input_domains_A_projection")).define("input_domains_A_projection", ["viz_spec","input_domains_A_overrides"], _input_domains_A_projection);
@@ -1232,23 +1240,23 @@ export default function define(runtime, observer) {
   main.variable(observer("links")).define("links", ["introspection","URLSearchParams"], _links);
   main.variable(observer("nodes")).define("nodes", ["introspection","qs"], _nodes);
   main.variable(observer("d")).define("d", ["nodes","links"], _d);
-  main.variable(observer()).define(["md"], _84);
+  main.variable(observer()).define(["md"], _85);
   main.variable(observer("model_path")).define("model_path", ["q","model_path1"], _model_path);
   main.variable(observer("viewof model_path1")).define("viewof model_path1", ["Inputs"], _model_path1);
   main.variable(observer("model_path1")).define("model_path1", ["Generators", "viewof model_path1"], (G, _) => G.input(_));
   main.variable(observer("model")).define("model", ["require","b64_to_utf8","module_response"], _model);
   main.variable(observer("viewof code_opt")).define("viewof code_opt", ["Inputs"], _code_opt);
   main.variable(observer("code_opt")).define("code_opt", ["Generators", "viewof code_opt"], (G, _) => G.input(_));
-  main.variable(observer()).define(["md"], _89);
   main.variable(observer()).define(["md"], _90);
+  main.variable(observer()).define(["md"], _91);
   main.variable(observer("viewof qs")).define("viewof qs", ["Inputs"], _qs);
   main.variable(observer("qs")).define("qs", ["Generators", "viewof qs"], (G, _) => G.input(_));
-  main.variable(observer()).define(["dot","d"], _92);
+  main.variable(observer()).define(["dot","d"], _93);
   main.variable(observer("viewof cul_scope_id")).define("viewof cul_scope_id", ["Inputs","_","introspection"], _cul_scope_id);
   main.variable(observer("cul_scope_id")).define("cul_scope_id", ["Generators", "viewof cul_scope_id"], (G, _) => G.input(_));
   main.variable(observer("cv")).define("cv", ["md","code_opt","dot","introspection","calcuin","calcuout"], _cv);
-  main.variable(observer()).define(["md"], _95);
   main.variable(observer()).define(["md"], _96);
+  main.variable(observer()).define(["md"], _97);
   main.variable(observer("q")).define("q", _q);
   main.variable(observer("viewof version")).define("viewof version", ["Inputs"], _version);
   main.variable(observer("version")).define("version", ["Generators", "viewof version"], (G, _) => G.input(_));
@@ -1275,15 +1283,15 @@ export default function define(runtime, observer) {
   main.variable(observer("vega")).define("vega", ["require"], _vega);
   const child1 = runtime.module(define1);
   main.import("serialize", child1);
-  main.variable(observer()).define(["md"], _121);
+  main.variable(observer()).define(["md"], _122);
   main.variable(observer("cql")).define("cql", ["require"], _cql);
-  main.variable(observer()).define(["projection"], _123);
+  main.variable(observer()).define(["projection"], _124);
   main.variable(observer("schema")).define("schema", ["cql","projection"], _schema);
   main.variable(observer("encodings")).define("encodings", ["viz_spec"], _encodings);
   main.variable(observer("output")).define("output", ["cql","projection","mark","encodings","schema"], _output);
   main.variable(observer("vlTree")).define("vlTree", ["cql","output"], _vlTree);
   main.variable(observer("c_spec")).define("c_spec", ["vlTree"], _c_spec);
   main.variable(observer("c_spec1")).define("c_spec1", ["c_spec","height","projection","viz_spec","mark"], _c_spec1);
-  main.variable(observer()).define(["md"], _130);
+  main.variable(observer()).define(["md"], _131);
   return main;
 }
