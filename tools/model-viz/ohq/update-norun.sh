@@ -1,3 +1,5 @@
+# Do not run this without trusting the ObservableHQ API, the tarball and contents which are run in node, and this script
+
 wget https://api.observablehq.com/@declann/calculang-tools-bad.tgz?v=3
 
 tar -zxvf ./calculang-tools-bad.tgz?v=3 ./package.json
