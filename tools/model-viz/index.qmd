@@ -85,13 +85,13 @@ viewof height = Inputs.range([0, 1000], {label: "height", step: 50, value:400})
 ```
 
 ```{ojs}
-viewof viz_spec = {
+viewof viz_spec = { // DN: transferrable
 
   const rows = ["formula","value","field 🔓",...formulae_info_inputs,""];
   const cols = ["x","y","color","row","text","detail","size", "field 🔓"]
 
   const t = html`<thead><tr><td>field</td><td>min</td><td># steps</td><td>size</td><td>cursor</td><td>type</td><td>format</td>${cols.map(c => `<td>${c}</td>`).join('')}</tr></thead>
-${rows.map(r => `<tr><td>${r}</td>${ r.substr(-3) == '_in' ? `<td><input type="text" style="width:30px" value="${input_domains_config.find(e => e.input == r).min /*?? 0*/}" /></td><td><input type="number" style="width:50px" min="0" max="100" value="${(input_domains_config.find(e => e.input == r).max - input_domains_config.find(e => e.input == r).min)/input_domains_config.find(e => e.input == r).step}" /></td><td><input type="text" style="width:30px" value="${input_domains_config.find(e => e.input == r).step}" /></td><td><input type="text" style="width:30px" value="${input_domains_config.find(e => e.input == r).default1}" id="cursor_${r}" /></td>` : `<td></td><td></td><td></td><td></td>`}<td><select id="type_${r}" style="width:40px"><option value="nominal">N</option><option value="ordinal">O</option><option value="quantitative">Q</option></select></td><td><input type="text" id="format_${r}" style="width:30px" /></td>${cols.map(c => `<td><input type="radio" name="${c}" id="${c}_${r}" value="${r}" ${r == "" ? `checked="checked"` : ''}></input></td>`).join('')}</tr>`).join('\n')}
+${rows.map(r => `<tr><td>${r}</td>${ r.substr(-3) == '_in' ? `<td><input type="text" style="width:30px" value="${input_domains_config.find(e => e.input == r).min /*?? 0*/}" /></td><td><input type="number" style="width:50px" min="0" max="100" value="${(input_domains_config.find(e => e.input == r).max - input_domains_config.find(e => e.input == r).min)/input_domains_config.find(e => e.input == r).step}" /></td><td><input type="text" style="width:30px" value="${input_domains_config.find(e => e.input == r).step}" /></td><td><input type="text" style="width:30px" value="${input_domains_config.find(e => e.input == r).default1}" id="cursor_${r}" /></td>` : `<td></td><td></td><td></td><td></td>`}<td><select id="type_${r}" style="width:40px"><option value="nominal">${r == "value" ? "Q" : "N"}</option><option value="ordinal">O</option><option value="quantitative">Q</option></select></td><td><input type="text" id="format_${r}" value="${r == "value" ? ".4~s" : ""}" style="width:30px" /></td>${cols.map(c => `<td><input type="radio" name="${c}" id="${c}_${r}" value="${r}" ${r == "" ? `checked="checked"` : ''}></input></td>`).join('')}</tr>`).join('\n')}
 <tr><td>independent scale?</td><td></td><td></td><td></td><td></td><td></td><td></td>${cols.map(c => `<td><input type="checkbox" id="independent_scale_${c}" /></td>`).join('')}</tr>
 `
 
